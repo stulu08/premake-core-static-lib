@@ -28,8 +28,10 @@
 </p>
 
 # Welocme to Stulu Premake
-
-## Basicly I just put all the stuff premake used in in the main project, wrote like 10 lines to execute premake and build it as a static lib 
+### Just premake as an static lib
+Basicly I just put all the stuff premake used in in the main project, wrote like 10 lines to execute premake and build it as a static lib. 
+Why? 
+Because maybe you like premake and want to do something where you need to create project files directly by code and dont want to do weird things like system("premake5 -vs2022")
 
 ## NOTE:
 - Its a static lib not a dll
