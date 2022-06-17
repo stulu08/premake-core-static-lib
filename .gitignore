@@ -37,6 +37,9 @@ Makefile
 .settings
 .buildpath
 
+.vs/
+bin/
+bin-int/
 *.bbprojectsettings
 Scratchpad.txt
 Unix Worksheet.worksheet

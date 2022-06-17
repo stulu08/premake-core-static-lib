@@ -1,238 +1,98 @@
----
--- Premake 5.x build configuration script
--- Use this script to configure the project with Premake5.
----
+local corePath = _SCRIPT_DIR
+premake.api.deprecations "off"
 
---
--- Remember my location; I will need it to locate sub-scripts later.
---
-
-	local corePath = _SCRIPT_DIR
-
-
---
--- Disable deprecation warnings for myself, so that older development
--- versions of Premake can be used to bootstrap new builds.
---
-
-	premake.api.deprecations "off"
-
-
---
--- Register supporting actions and options.
---
-
-	newaction {
-		trigger = "embed",
-		description = "Embed scripts in scripts.c; required before release builds",
-		execute = function ()
-			include (path.join(corePath, "scripts/embed.lua"))
-		end
-	}
-
-
-	newaction {
-		trigger = "package",
-		description = "Creates source and binary packages",
-		execute = function ()
-			include (path.join(corePath, "scripts/package.lua"))
-		end
-	}
-
-
-	newaction {
-		trigger = "docs-check",
-		description = "Validates documentation files for Premake APIs",
-		execute = function ()
-			include (path.join(corePath, "scripts/docscheck.lua"))
-		end
-	}
-
-
-	newaction {
-		trigger = "test",
-		description = "Run the automated test suite",
-		execute = function ()
-			test = require "self-test"
-			premake.action.call("self-test")
-		end
-	}
-
-
-	newoption {
-		trigger = "test-all",
-		description = "Run all unit tests, including slower network and I/O"
-	}
-
-
-	newoption {
-		trigger = "test-only",
-		description = "When testing, run only the specified suite or test"
-	}
-
-
-	newoption {
-		trigger = "to",
-		value   = "path",
-		description = "Set the output location for the generated files"
-	}
-
-
-	newoption {
-		trigger = "no-curl",
-		description = "Disable Curl 3rd party lib"
-	}
-
-
-	newoption {
-		trigger = "no-zlib",
-		description = "Disable Zlib/Zip 3rd party lib"
-	}
-
-	newoption {
-		trigger = "no-luasocket",
-		description = "Disable Luasocket 3rd party lib"
-	}
-
-	newoption {
-		trigger     = "bytecode",
-		description = "Embed scripts as bytecode instead of stripped souce code"
-	}
-
-	newoption {
-		trigger = "arch",
-		value = "arch",
-		description = "Set the architecture of the binary to be built.",
-		allowed = {
-			{ "ARM", "ARM (On macOS, same as ARM64.)" },
-			{ "ARM64", "ARM64" },
-			{ "x86", "x86 (On macOS, same as x86_64.)" },
-			{ "x86_64", "x86_64" },
-			{ "Universal", "Universal Binary (macOS only)" },
-			--
-			{ "Win32", "Same as x86" },
-			{ "x64", "Same as x86_64" },
-			--
-			{ "default", "Generates default platforms for targets, x86 and x86_64 projects for Windows." }
-		},
-		default = "default",
-	}
-
---
--- Define the project. Put the release configuration first so it will be the
--- default when folks build using the makefile. That way they don't have to
--- worry about the /scripts argument and all that.
---
--- TODO: Switch to these new APIs once they've had a chance to land everywhere
---
---    defaultConfiguration "Release"
---    symbols "On"
---
-
+outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 	solution "Premake5"
-		configurations { "Release", "Debug" }
-		location ( _OPTIONS["to"] )
+		configurations { "Release", "Debug", "Dist" }
 
-		flags { "StaticRuntime", "MultiProcessorCompile" }
-		warnings "Extra"
+		flags { "MultiProcessorCompile" }
+		
+		platforms { "x64" }
 
-		if not _OPTIONS["no-zlib"] then
-			defines { "PREMAKE_COMPRESSION" }
-		end
+		
 
-		if not _OPTIONS["no-curl"] then
-			defines { "CURL_STATICLIB", "PREMAKE_CURL"}
-		end
-
-		filter { "system:macosx", "options:arch=ARM or arch=ARM64" }
-			buildoptions { "-arch arm64" }
-			linkoptions { "-arch arm64" }
-
-		filter { "system:macosx", "options:arch=x86 or arch=x86_64 or arch=Win32 or arch=x64" }
-			buildoptions { "-arch x86_64" }
-			linkoptions { "-arch x86_64" }
-
-		filter { "system:macosx", "options:arch=Universal" }
-			buildoptions { "-arch arm64", "-arch x86_64" }
-			linkoptions { "-arch arm64", "-arch x86_64" }
-
-		filter { "system:windows", "options:arch=ARM" }
-			platforms { "ARM" }
-
-		filter { "system:windows", "options:arch=ARM64" }
-			platforms { "ARM64" }
-
-		filter { "system:windows", "options:arch=x86 or arch=Win32" }
-			platforms { "Win32" }
-
-		filter { "system:windows", "options:arch=x86_64 or arch=x64" }
-			platforms { "x64" }
-
-		filter { "system:windows", "options:arch=default" }
-			platforms { "x86", "x64" }
-
-		filter "configurations:Debug"
-			defines     "_DEBUG"
-			flags       { "Symbols" }
-
-		filter "configurations:Release"
-			defines     "NDEBUG"
-			optimize    "Full"
-			flags       { "NoBufferSecurityCheck", "NoRuntimeChecks" }
-
-		filter "action:vs*"
-			defines     { "_CRT_SECURE_NO_DEPRECATE", "_CRT_SECURE_NO_WARNINGS", "_CRT_NONSTDC_NO_WARNINGS" }
-
-		filter { "system:windows", "configurations:Release" }
-			flags       { "NoIncrementalLink" }
 
 		-- MinGW AR does not handle LTO out of the box and need a plugin to be setup
-		filter { "system:windows", "configurations:Release", "toolset:not mingw" }
+		filter { "system:windows", "configurations:Release or Dist", "toolset:not mingw" }
 			flags		{ "LinkTimeOptimization" }
 
 	project "Premake5"
 		targetname  "premake5"
 		language    "C"
 		kind        "StaticLib"
+		staticruntime "on"
+		targetdir ("bin/" .. outputdir .. "")
+		objdir ("bin-int/" .. outputdir .. "")
+
+		warnings    "off"
+
 		includedirs { "contrib/lua/src", "contrib/luashim" }
-		links       { "lua-lib" }
+		includedirs { "contrib/zlib", "contrib/libzip" }
+		includedirs { "contrib/curl/include" }
+		includedirs { "contrib/curl/lib", "contrib/mbedtls/include" }
 
-		-- optional 3rd party libraries
-		if not _OPTIONS["no-zlib"] then
-			includedirs { "contrib/zlib", "contrib/libzip" }
-			links { "zip-lib", "zlib-lib" }
-		end
 
-		if not _OPTIONS["no-curl"] then
-			includedirs { "contrib/curl/include" }
-			links { "curl-lib" }
-		end
+		-- links { "lua-lib" }
+		-- links { "zip-lib", "zlib-lib" }
+		-- links { "curl-lib" }
+		defines {"N_FSEEKO"}
+		defines { "PREMAKE_COMPRESSION" }
+		defines { "PREMAKE_CURL"}
+		defines { 'USE_ZLIB' }
+		defines { "BUILDING_LIBCURL", "CURL_STATICLIB", "HTTP_ONLY" }
+		files {
+			"contrib/lua/**.h",
+			"contrib/lua/**.c",
 
-		files
-		{
+			"contrib/zlib/**.h",
+			"contrib/zlib/**.c",
+			"contrib/libzip/**.h",
+			"contrib/libzip/**.c",
+
+			"contrib/curl/**.h",
+			"contrib/curl/**.c",
+
 			"*.txt", "**.lua",
 			"src/**.h", "src/**.c",
 			"src/Stulu/**.h", "src/Stulu/**.c",
 			"modules/**"
 		}
+		excludes{
+			"contrib/lua/src/lauxlib.c",
+			"contrib/lua/src/lua.c",
+			"contrib/lua/src/luac.c",
+			"contrib/lua/src/print.c",
+			"contrib/lua/**.lua",
+			"contrib/lua/etc/*.c"
+		}
+
+		externalincludedirs { "include" }
+
+
 
 		excludes
 		{
-			"contrib/**.*",
-			"binmodules/**.*"
+			"contrib/**.lua",
+			"contrib/**.txt",
 		}
 
 		filter "configurations:Debug"
-			targetdir   "bin/debug"
 			debugargs   { "--scripts=%{prj.location}/%{path.getrelative(prj.location, prj.basedir)}", "test" }
-			debugdir    "."
 
-		filter "configurations:Release"
-			targetdir   "bin/release"
 
 		filter "system:windows"
 			links       { "ole32", "ws2_32", "advapi32", "version" }
 			files { "src/**.rc" }
+			defines { "_WINDOWS" }
+
+		filter "system:linux or bsd or solaris or haiku"
+			defines { "HAVE_SSIZE_T_LIBZIP", "HAVE_CONFIG_H" }
+
+		filter { "system:windows", "toolset:mingw" }
+			defines { "HAVE_SSIZE_T_LIBZIP" }
+
+		filter "system:macosx"
+			defines { "HAVE_SSIZE_T_LIBZIP" }
 
 		filter "toolset:mingw"
 			links		{ "crypt32" }
@@ -245,10 +105,11 @@
 		filter "system:linux or hurd"
 			links       { "dl", "rt" }
 
+		filter "system:not windows"
+			defines { 'HAVE_UNISTD_H' }
+
 		filter { "system:not windows", "system:not macosx" }
-			if not _OPTIONS["no-curl"] then
-				links   { "mbedtls-lib" }
-			end
+			links   { "mbedtls-lib" }
 
 		filter "system:macosx"
 			defines     { "LUA_USE_MACOSX" }
@@ -271,33 +132,23 @@
 			defines     { "LUA_USE_POSIX", "LUA_USE_DLOPEN", "_BSD_SOURCE" }
 			links       { "network", "bsd" }
 
+		filter "configurations:Debug"
+			defines     "_DEBUG"
+			flags       { "Symbols" }
+
+		filter "configurations:Release"
+			defines     "NDEBUG"
+			optimize    "Full"
+			flags       { "NoBufferSecurityCheck", "NoRuntimeChecks" }
+
+		filter "configurations:Dist"
+			defines     "NDEBUG"
+			optimize    "Full"
+			flags       { "NoBufferSecurityCheck", "NoRuntimeChecks" }
+
 	-- optional 3rd party libraries
-	group "contrib"
-		include "contrib/lua"
-		include "contrib/luashim"
-
-		if not _OPTIONS["no-zlib"] then
-			include "contrib/zlib"
-			include "contrib/libzip"
-		end
-
-		if not _OPTIONS["no-curl"] then
-			include "contrib/mbedtls"
-			include "contrib/curl"
-		end
-
-	group "Binary Modules"
-		include "binmodules/example"
-
-		if not _OPTIONS["no-luasocket"] then
-			include "binmodules/luasocket"
-		end
-
---
--- A more thorough cleanup.
---
-
-	if _ACTION == "clean" then
-		os.rmdir("bin")
-		os.rmdir("build")
-	end
+	-- group "contrib"
+		-- include "contrib/lua"
+		-- include "contrib/zlib"
+		-- include "contrib/libzip"
+		-- include "contrib/curl"
