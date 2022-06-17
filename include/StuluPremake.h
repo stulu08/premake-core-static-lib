@@ -1,5 +1,5 @@
 /**
- * \file   StuluPremake.c
+ * \file   StuluPremake.h
  * \brief  Program-wide constants and definitions.
  * \author Copyright (c) 2022-2022 Julian Bents
  */
