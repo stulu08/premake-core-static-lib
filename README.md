@@ -36,10 +36,11 @@
 - Large File Size
 - Only x64
 - Static runtime is on (/MT or /MTd)
+- If u use this pls refere me
 
 ### Example
 
-``` C++
+``` C
 #include <StuluPremake.h>
 
 int main() {

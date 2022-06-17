@@ -1,3 +1,9 @@
+/**
+ * \file   StuluPremake.c
+ * \brief  Program-wide constants and definitions.
+ * \author Copyright (c) 2022-2022 Julian Bents
+ */
+
 #ifndef STULUPREMAKE_H
 #define STULUPREMAKE_H
 

@@ -30,6 +30,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 		includedirs { "contrib/zlib", "contrib/libzip" }
 		includedirs { "contrib/curl/include" }
 		includedirs { "contrib/curl/lib", "contrib/mbedtls/include" }
+		includedirs { "include" }
 
 
 		-- links { "lua-lib" }
@@ -54,7 +55,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 			"*.txt", "**.lua",
 			"src/**.h", "src/**.c",
-			"src/Stulu/**.h", "src/Stulu/**.c",
+			"include/**.h", "src/Stulu/**.c",
 			"modules/**"
 		}
 		excludes{
