@@ -27,6 +27,26 @@
     </a>
 </p>
 
+# Welocme to Stulu Premake
+
+## Basicly I just put all the stuff premake used in in the main project, wrote like 10 lines to execute premake and build it as a static lib 
+
+## NOTE:
+- Its a static lib not a dll
+- Large File Size
+- Only x64
+- Static runtime is on (/MT or /MTd)
+
+### Example
+
+``` C++
+#include <StuluPremake.h>
+
+int main() {
+	int succes = stulu_premake_exec("C:/Folder/With/Premake5/File/In/It", ST_PREMAKE_ACTION_VS2022);
+	return 0;
+}
+``` 
 
 # Welcome to Premake
 
