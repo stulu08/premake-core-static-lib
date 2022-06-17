@@ -27,7 +27,7 @@
     </a>
 </p>
 
-# Welocme to Stulu Premake
+# Welocme to Stulu Premake - [Download](https://github.com/stulu08/premake-core-static-lib/releases/tag/STv1.0.0)
 ### Just premake as an static lib
 Basicly I just put all the stuff premake used in in the main project, wrote like 10 lines to execute premake and build it as a static lib. 
 Why? 
