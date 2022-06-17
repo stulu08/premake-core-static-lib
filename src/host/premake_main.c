@@ -3,7 +3,7 @@
  * \brief  Program entry point.
  * \author Copyright (c) 2002-2013 Jason Perkins and the Premake project
  */
-
+/*
 #include "premake.h"
 
 int main(int argc, const char** argv)
@@ -22,3 +22,4 @@ int main(int argc, const char** argv)
 	lua_close(L);
 	return z;
 }
+*/

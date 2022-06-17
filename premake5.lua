@@ -193,7 +193,7 @@
 	project "Premake5"
 		targetname  "premake5"
 		language    "C"
-		kind        "ConsoleApp"
+		kind        "StaticLib"
 		includedirs { "contrib/lua/src", "contrib/luashim" }
 		links       { "lua-lib" }
 
@@ -212,6 +212,7 @@
 		{
 			"*.txt", "**.lua",
 			"src/**.h", "src/**.c",
+			"src/Stulu/**.h", "src/Stulu/**.c",
 			"modules/**"
 		}
 
@@ -269,7 +270,6 @@
 		filter "system:haiku"
 			defines     { "LUA_USE_POSIX", "LUA_USE_DLOPEN", "_BSD_SOURCE" }
 			links       { "network", "bsd" }
-
 
 	-- optional 3rd party libraries
 	group "contrib"
