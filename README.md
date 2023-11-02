@@ -38,7 +38,6 @@ Because maybe you like premake and want to do something where you need to create
 - Large File Size
 - Only x64
 - Static runtime is on (/MT or /MTd)
-- If u use this pls refere me
 
 ### Example
 
