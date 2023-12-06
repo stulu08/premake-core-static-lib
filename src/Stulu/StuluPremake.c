@@ -65,22 +65,17 @@ int changeDir(const char* newDir) {
 int stulu_premake_exec(const char* path, const char* action) {
 	const char* startingPath = getCurDir();
 
-	int argc = 2;
 	const char* argv[2] = {
 		path, action
 	};
 	changeDir(path);
-	int succes = app_main(argc, argv);
+	int succes = stulu_premake_app_main(2, argv);
 	changeDir(startingPath);
 
 	return succes;
 }
 
-int stulu_premake_exec_args(const char* path, const char** argv, int argc) {
-	const char* startingPath = getCurDir();
-	changeDir(path);
+int stulu_premake_app_main(int argc, const char** argv) {
 	int succes = app_main(argc, argv);
-	changeDir(startingPath);
-
 	return succes;
 }
