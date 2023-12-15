@@ -6,9 +6,7 @@ include (path.join(corePath, "scripts/embed.lua"))
 project "Premake5"
 	kind        "StaticLib"
 	language    "C"
-	if(staticRuntime) then
-		staticruntime "on"
-	end
+	staticruntime "off"
 	targetname  "premake5"
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
