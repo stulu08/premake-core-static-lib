@@ -62,6 +62,27 @@ int changeDir(const char* newDir) {
 	return succes;
 }
 
+int stulu_premake_exec_options(const char* path, const char* action, const char** options, int optionsCount) {
+	const char* startingPath = getCurDir();
+
+	const int argc = optionsCount + 2;
+	const char** argv = malloc(sizeof(char*) * argc);
+	argv[0] = path;
+	argv[1] = action;
+
+	for (int i = 0; i < optionsCount; i++) {
+		argv[i + 2] = options[i];
+	}
+
+	changeDir(path);
+	int succes = stulu_premake_app_main(argc, argv);
+	changeDir(startingPath);
+
+	free(argv);
+
+	return succes;
+}
+
 int stulu_premake_exec(const char* path, const char* action) {
 	const char* startingPath = getCurDir();
 
@@ -76,6 +97,13 @@ int stulu_premake_exec(const char* path, const char* action) {
 }
 
 int stulu_premake_app_main(int argc, const char** argv) {
+	printf("Running Premake %s %s\n", PREMAKE_VERSION, PREMAKE_COPYRIGHT);
+
+	for (int32_t i = 0; i < argc; i++) {
+		printf("%s ", argv[i]);
+	}
+	putchar('\n');
+	
 	int succes = app_main(argc, argv);
 	return succes;
 }

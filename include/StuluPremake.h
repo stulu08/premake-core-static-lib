@@ -28,6 +28,7 @@
 #endif
 
 
+ST_PREMAKE_API int stulu_premake_exec_options(const char* path, const char* action, const char** options, int optionsCount);
 ST_PREMAKE_API int stulu_premake_exec(const char* path, const char* action);
 ST_PREMAKE_API int stulu_premake_app_main(int argc, const char** argv);
 #endif /* STULUPREMAKE_H */
