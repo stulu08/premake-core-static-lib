@@ -122,7 +122,7 @@ project "Premake5"
 
 	filter "configurations:Debug"
 		defines     "_DEBUG"
-		flags       { "Symbols" }
+		symbols 	"on"
 
 	filter "configurations:Release"
 		defines     "NDEBUG"
